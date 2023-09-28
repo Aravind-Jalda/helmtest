@@ -1,0 +1,221 @@
+# Default values for ovaledge.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Enter the number of pods required below
+uireplicaCount: uireplicaCountvalue
+jobreplicaCount: jobreplicaCountvalue
+
+# Enter the resources allocation for ES and OE pods
+oeConfig:
+  requests:
+    memory: "oememrequestMi"
+    cpu: "oecpurequestm"
+  limits:
+    memory: "oememlimitMi"
+    cpu: "oecpulimitm"
+
+#nifiConfig:
+#  requests:
+#    memory: 3400Mi
+#    cpu: 500m
+#  limits:
+#    memory: 5400Mi
+#    cpu: 1000m
+
+namespace: "ovaledge"
+
+# Enter the image details
+
+image:
+  repository: "ovaledgellc/dockerrepo"
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "imageTagValue"
+
+imagePullSecrets: [ name: ovaledgedockersecret ]
+
+NIFI:
+  image: ovaledgellc/internaltest:nifiimageTag
+  HOST: "nifiHost"
+  NIFI_CERT: "false"
+  Bridge_params: "1"
+
+# Enter the SecretsManager details below
+
+SecretsManager:
+  name: 
+
+# Enter the ServiceAccount details which the cluster uses below
+
+#serviceAccount:
+  # Specifies whether a service account should be created
+#  create: false
+  # Annotations to add to the service account
+# annotations: {
+ #  }
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+ # name: "ovaledge-sa"
+
+
+# below are the db details required for OvalEdge. Make sure to edit the db endpoint and database name
+# database given below should be loaded with scripts shared by OvalEdge team 
+dbdetails:
+  DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+  OVALEDGE_SECURITY_TYPE: ovaledgeSecTypeValue
+  OVALEDGE_MYSQL_URL: "jdbc:mysql://dbEndpointValue:3306/dbNameValue?useSSL=true&requireSSL=false"
+  OVALEDGE_MYSQL_USER: "dbUserValue"
+  OVALEDGE_MYSQL_PWORD: "dbPassValue"
+  DB_INITIAL_SIZE: "50"
+  DB_MIN_IDLE: "20"
+  DB_MAX_CONNECTIONS: "60"
+  READ_DB_MAX_CONNECTIONS: "80"
+  READ_DB_MAX_IDLE: "10"
+  SPRING_SESSION_DB_MAX_CONNECTIONS: "120"
+  DB_MAX_IDLE: "30"
+  TRANS_PROP_BEH: "1"
+
+Hikari:
+  HIKARI_CONNECTION_TIMEOUT_IN_SECONDS: "50"
+  HIKARI_IDLETIMEOUT_IN_MINUTES: "2"
+  HIKARI_VADILATIONTIMEOUT_IN_SECONDS: "50"
+  HIKARI_LEAKDETECTION_IN_SECONDS: "30"
+
+AzureKeyVault:
+  Azure_DB_KEY_VAULT: "false"
+  Azure_KEY_VAULT_URI: "https://poc-adda.vault.azure.net/"
+  Azure_Tenant_ID: "c717a2aa-3648-46e2-aae6-a5f4a51947db"
+  Azure_Client_ID: "4ae3b13d-3be5-40a9-8a01-856b90cd1f8d"
+  Azure_Client_Secret: "uMG8Q~xIqt9OJqWOYR_TwY7rMIgcZwTxrqYEJdcT"
+  Azure_Resource: "https://vault.azure.net"
+
+BRIDGE_DOMAIN: 
+
+# azure fileshare details
+azure_secrets:
+  azurename: "azure-secret1"
+  azureStorageAccountName: azureStorageAccountNameValue
+  storageKey: "azureStorageKeyValue"
+  ##oe_jars_shareName: <   >
+  nififile_shareName: bridgefileshareValue
+  nificonf_shareName: bridgeConfshareValue
+  toolkit_shareName: bridgeToolkitshareValue
+
+# Give your EFS filesystem Id below
+#EFS:
+#  FilesystemId: ''
+
+# Give ElasticSearch Details below
+ElasticSearch:
+  ES_HOST: "oeelasticsearchsvc"
+  ES_PORT: "9200"
+  ES_PROTOCOL: "http"
+  ES_USERNAME: "elastic"
+  ES_PASSWORD: "ovaledge123456"
+  ES_OVALEDGE_ENV: "dev"
+
+SAML:
+  OVALEDGE_SAML_META_DATA: ""
+  ENTITY_BASE_URL: ""
+  IS_LB: ""
+  ENTITY_BASE_PROTOCOL: ""
+  ENTITY_BASE_HOST: ""
+  ENTITY_BASE_PORT: ""
+  CONTEXT_PATH: ""
+
+LDAP:
+  LADP_CUSTOMROLE_PREFIX: ""
+  LDAP_USERSEARCHBASE: ""
+  LDAP_GROUPROLEATTRIBUTE: ""
+  LDAP_URL: ""
+  LDAP_MANAGERDN: ""
+  LDAP_MANAGER_PWORD: ""
+  
+OAUTH: 
+  OAUTH2_CLIENT_ID: "clientId"
+  OAUTH2_CLIENT_SECRET: "clientSecret"
+  OAUTH2_BASE_URL: ""
+  OAUTH2_TENANT_ID: "tenantId"
+
+Azure:
+  AZURE_DBKEYVAULT: ""
+  AZURE_KEYVAULT_URI: ""
+  AZURE_TENANTID: ""
+  AZURE_CLIENTID: ""
+  AZURE_CLIENTSECRET: ""
+  AZURE_RESOURCE: ""
+  jdbcstringurl: ""
+  username: ""
+  password: ""
+  readjdbcstringurl: ""
+  encryptdecryptkey: ""
+  eshost: ""
+  esport: ""
+  esprotocol: ""
+  esusername: ""
+  espassword: ""
+# this is for read plica 
+  PRIMARY_USERNAME:
+  PRIMARY_PASSWORD:
+  PRIMARY_URL:
+
+onelogin:   
+  AUTH_PROVIDER:
+  AUTH_PROVIDER_LOGIN:
+
+# API security
+
+API_INTROSPECTION_URL: ""
+API_CLIENTID:
+API_CLIENTSECRET:
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  name: oe-ingress
+  host: ingressHostValue
+
+letsencrypt:
+  email: letsencryptEmailValue
+
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

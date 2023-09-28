@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nifi
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: nifi
+  template:
+    metadata:
+      labels:
+        app: nifi
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: nififile
+        azureFile:
+          secretName: {{ .Values.azure_secrets.azurename }}
+          shareName: {{ .Values.azure_secrets.nififile_shareName }}
+          readOnly: false
+      - name: conf
+        azureFile:
+          secretName: {{ .Values.azure_secrets.azurename }}
+          shareName: {{ .Values.azure_secrets.nificonf_shareName }}
+          readOnly: false
+      - name: toolkit
+        azureFile:
+          secretName: {{ .Values.azure_secrets.azurename }}
+          shareName: {{ .Values.azure_secrets.toolkit_shareName }}
+          readOnly: false
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+      containers:
+      - name: ovaledge
+        volumeMounts:
+         - name: nififile
+           mountPath: /mnt/tmp
+         - name: nififile
+           mountPath: /usr/local/nifi/BridgeSoftware
+         - name: conf
+           mountPath: /usr/local/nifi/nifi-1.16.3/conf
+         - name: toolkit
+           mountPath: /usr/local/nifi/nifi-toolkit-1.16.3/
+        image: ovaledgellc/internaltest:addanifi8
+        ports:
+            - name: https
+              containerPort: 9443
+              protocol: TCP
+            - name: http
+              containerPort: 8085
+              protocol: TCP
+        env:
+            - name: HOST_IP
+              value: {{ .Values.NIFI.HOST }}
+            - name: NIFI_CERT
+              value: {{ .Values.NIFI.NIFI_CERT | quote }}
+            - name: WEB_HOST
+              value: {{ .Values.NIFI.HOST }}
+            - name: Bridge_params
+              value: {{ .Values.NIFI.Bridge_params | quote }}

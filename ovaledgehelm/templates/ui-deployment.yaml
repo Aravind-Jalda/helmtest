@@ -1,0 +1,142 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ovaledge-ui-deployment
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: ovaledge-ui
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.uireplicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: ovaledge-ui
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: ovaledge-ui
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+      - name: files
+        azureFile:
+          secretName: {{ .Values.azure_secrets.azurename }}
+          shareName: {{ .Values.azure_secrets.nififile_shareName }}
+          readOnly: false
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          resources:
+            requests:
+              memory: {{ .Values.oeConfig.requests.memory }}
+              cpu: {{ .Values.oeConfig.requests.cpu }}
+            limits:
+              memory: {{ .Values.oeConfig.limits.memory }}
+              cpu: {{ .Values.oeConfig.limits.cpu }}
+          volumeMounts:
+             - name: files
+               mountPath: /mnt/BridgeSoftware
+             - name: files
+               mountPath: /mnt/tmp
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DRIVER_CLASS_NAME
+              value: {{ .Values.dbdetails.DRIVER_CLASS_NAME | quote }}
+            - name: OVALEDGE_MYSQL_URL
+              value: {{ .Values.dbdetails.OVALEDGE_MYSQL_URL | quote }}
+            - name: OVALEDGE_MYSQL_USER
+              value: {{ .Values.dbdetails.OVALEDGE_MYSQL_USER | quote }}
+            - name: OVALEDGE_MYSQL_PWORD
+              value: {{ .Values.dbdetails.OVALEDGE_MYSQL_PWORD | quote }}
+            - name: OVALEDGE_SECURITY_TYPE
+              value: {{ .Values.dbdetails.OVALEDGE_SECURITY_TYPE | quote }}
+            - name: DB_INITIAL_SIZE
+              value: {{ .Values.dbdetails.DB_INITIAL_SIZE | quote }}
+            - name: DB_MIN_IDLE
+              value: {{ .Values.dbdetails.DB_MIN_IDLE | quote }}
+            - name: DB_MAX_CONNECTION
+              value: {{ .Values.dbdetails.DB_MAX_CONNECTIONS | quote }}
+            - name: DB_MAX_IDLE
+              value: {{ .Values.dbdetails.DB_MAX_IDLE | quote }}
+            - name: READ_DB_MAX_CONNECTION
+              value: {{ .Values.dbdetails.READ_DB_MAX_CONNECTION | quote }}
+            - name: READ_DB_MAX_IDLE
+              value: {{ .Values.dbdetails.READ_DB_MAX_IDLE | quote }}
+            - name: SPRING_SESSION_DB_MAX_CONNECTIONS
+              value: {{ .Values.dbdetails.SPRING_SESSION_DB_MAX_CONNECTIONS | quote }}
+            - name: HIKARI_CONNECTION_TIMEOUT_IN_SECONDS
+              value: {{ .Values.Hikari.HIKARI_CONNECTION_TIMEOUT_IN_SECONDS | quote }}
+            - name: HIKARI_IDLETIMEOUT_IN_MINUTES
+              value: {{ .Values.Hikari.HIKARI_IDLETIMEOUT_IN_MINUTES | quote }}
+            - name: HIKARI_VADILATIONTIMEOUT_IN_SECONDS
+              value: {{ .Values.Hikari.HIKARI_VADILATIONTIMEOUT_IN_SECONDS | quote }}
+            - name: HIKARI_LEAKDETECTION_IN_SECONDS
+              value: {{ .Values.Hikari.HIKARI_LEAKDETECTION_IN_SECONDS | quote }}
+            - name: ES_HOST
+              value: {{ .Values.ElasticSearch.ES_HOST | quote }}
+            - name: ES_PORT
+              value: {{ .Values.ElasticSearch.ES_PORT | quote }}
+            - name: ES_PROTOCOL
+              value: {{ .Values.ElasticSearch.ES_PROTOCOL | quote }}
+            - name: ES_USERNAME
+              value: {{ .Values.ElasticSearch.ES_USERNAME | quote }}
+            - name: ES_PASSWORD
+              value: {{ .Values.ElasticSearch.ES_PASSWORD | quote }}
+            - name: ES_OVALEDGE_ENV
+              value: {{ .Values.ElasticSearch.ES_OVALEDGE_ENV | quote }}
+            - name: OVALEDGE_SAML_META_DATA
+              value: {{ .Values.SAML.OVALEDGE_SAML_META_DATA | quote }}
+            - name: ENTITY_BASE_URL
+              value: {{ .Values.SAML.ENTITY_BASE_URL | quote }}
+            - name: IS_LB
+              value: {{ .Values.SAML.IS_LB | quote }}
+            - name: API_INTROSPECTION_URL
+              value: {{ .Values.API_INTROSPECTION_URL | quote }}
+            - name: API_CLIENTID
+              value: {{ .Values.API_CLIENTID | quote }}
+            - name: API_CLIENTSECRET
+              value: {{ .Values.API_CLIENTSECRET | quote }}
+            - name: Azure_DB_KEY_VAULT
+              value: {{ .Values.AzureKeyVault.Azure_DB_KEY_VAULT | quote }}
+            - name: Azure_KEY_VAULT_URI
+              value: {{ .Values.AzureKeyVault.Azure_KEY_VAULT_URI | quote }}
+            - name: Azure_Tenant_ID
+              value: {{ .Values.AzureKeyVault.Azure_Tenant_ID | quote }}
+            - name: Azure_Client_ID
+              value: {{ .Values.AzureKeyVault.Azure_Client_ID | quote }}
+            - name: Azure_Client_Secret
+              value: {{ .Values.AzureKeyVault.Azure_Client_Secret | quote }}
+            - name: Azure_Resource
+              value: {{ .Values.AzureKeyVault.Azure_Resource | quote }}
+            - name: TRANS_PROP_BEH
+              value: {{ .Values.dbdetails.TRANS_PROP_BEH | quote }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP  
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
