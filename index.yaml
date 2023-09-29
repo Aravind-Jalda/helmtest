@@ -3,12 +3,12 @@ entries:
   ovaledgehelm:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2023-09-29T16:40:49.529186+05:30"
+    created: "2023-09-29T16:57:12.049434+05:30"
     description: A Helm chart for Kubernetes
     digest: ca04f694b1751140880def3fd5e6124a70ae00304f97d7a1d17bacb602224fbe
     name: ovaledgehelm
     type: application
     urls:
-    - https://aravind-jalda.github.io/helmtest/ovaledgehelm-0.1.0.tgz
+    - https://https:/aravind-jalda.github.io/helmtest/ovaledgehelm/ovaledgehelm-0.1.0.tgz
     version: 0.1.0
-generated: "2023-09-29T16:40:49.527422+05:30"
+generated: "2023-09-29T16:57:12.048438+05:30"
